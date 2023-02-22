@@ -124,7 +124,7 @@ def count_repeats(xs, x):
                 return find_greatest(new_left, new_right)
         if mid == len(xs) - 2:
             if xs[-1] == x:
-                return len(xs)-1
+                return len(xs) - 1
         if xs[mid] > x:
             new_left = mid
             new_right = right
@@ -179,8 +179,8 @@ def argmin(f, lo, hi, epsilon=1e-3):
     -0.00016935087808430278
     '''
     def go(lo, hi):
-        m1 = (hi + 2*lo) / 3
-        m2 = (2*hi + lo) / 3
+        m1 = (hi + 2 * lo) / 3
+        m2 = (2 * hi + lo) / 3
         if abs(hi - lo) <= epsilon:
             if f(hi) < f(lo):
                 return hi
