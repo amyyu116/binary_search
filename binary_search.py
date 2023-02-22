@@ -28,19 +28,27 @@ def find_smallest_positive(xs):
     >>> find_smallest_positive([-3, -2, -1]) is None
     True
     '''
-    if xs[-1] < 0:
-        return None
     if len(xs) == 0:
         return None
-    if xs[0] >= 0:
+    if xs[-1] < 0:
+        return None
+    if xs[0] > 0:
         return 0
     left = 0
     right = len(xs) - 1
+    if xs[left] == 0:
+        if len(xs) > 2:
+            return 1
 
     def go(left, right):
         mid_index = (left + right) // 2
         if xs[mid_index] == 0:
             return mid_index + 1
+        if abs(left - right) == 1:
+            if xs[left + 1] > 0:
+                return left + 1
+            else:
+                return None
         if xs[mid_index] <= 0:
             new_left = mid_index
             new_right = right
@@ -81,11 +89,12 @@ def count_repeats(xs, x):
 
     if len(xs) == 0:
         return None
-
     left = 0
     right = len(xs) - 1
 
     def find_lowest(left, right):
+        if xs[-1] == x:
+            return len(xs)
         mid = (left + right) // 2
         if xs[mid] == x:
             if xs[mid + 1] != x:
@@ -103,6 +112,8 @@ def count_repeats(xs, x):
         return find_lowest(new_left, new_right)
 
     def find_greatest(left, right):
+        if xs[0] == x:
+            return 0
         mid = (left + right) // 2
         if xs[mid] == x:
             if xs[mid - 1] != x:
@@ -111,13 +122,16 @@ def count_repeats(xs, x):
                 new_right = mid
                 new_left = left + 1
                 return find_greatest(new_left, new_right)
+        if mid == len(xs) - 2:
+            if xs[-1] == x:
+                return len(xs)-1
         if xs[mid] > x:
             new_left = mid
             new_right = right
         if xs[mid] < x:
             new_right = mid
             new_left = left
-        return find_lowest(new_left, new_right)
+        return find_greatest(new_left, new_right)
 
     return find_lowest(left, right) - find_greatest(left, right)
 
@@ -164,27 +178,26 @@ def argmin(f, lo, hi, epsilon=1e-3):
     >>> argmin(lambda x: (x-5)**2, -20, 0)
     -0.00016935087808430278
     '''
-    if (hi - lo) <= epsilon:
-        if f(hi) > f(lo):
-            return lo
+    def go(lo, hi):
+        m1 = (hi + 2*lo) / 3
+        m2 = (2*hi + lo) / 3
+        if abs(hi - lo) <= epsilon:
+            if f(hi) < f(lo):
+                return hi
+            else:
+                return lo
         else:
-            return hi
-    else:
-        m1 = (hi + 2 * lo) / 3
-        m2 = (2 * hi + lo) / 3
-        if f(m1) > f(lo) and f(hi) > f(lo) and f(m2) > f(lo):
-            hi = m2
-            lo = lo
-        if f(m1) > f(m2) and f(hi) > f(m2) and f(lo) > f(m2):
-            hi = m2
-            lo = lo
-        if f(m1) < f(lo) and f(m1) < f(m2) and f(m1) < f(hi):
-            lo = m1
-            hi = hi
-        if f(hi) < f(lo) and f(hi) < f(m2) and f(hi) < f(m1):
-            lo = m1
-            hi = hi
-        return argmin(f, lo, hi)
+            print(lo, m1, m2, hi)
+            if f(m1) <= f(m2) and f(m1) <= f(lo) and f(m1) <= f(hi):
+                return go(lo, m2)
+            if f(m2) <= f(m1) and f(m2) <= f(lo) and f(m2) <= f(hi):
+                return go(m1, hi)
+            if f(hi) <= f(m1) and f(hi) <= f(m2) and f(hi) <= f(lo):
+                return go(m1, hi)
+            else:
+                return go(lo, m2)
+
+    return go(lo, hi)
 
 
 # possible bounds: [lo, m2], [m1, hi]
@@ -211,6 +224,16 @@ def find_boundaries(f):
         you're done; return lo,hi
 
     '''
+    def boundary_set(lo, hi):
+        mid = (lo + hi) / 2
+        if f(lo) < f(mid):
+            return boundary_set(lo * 2, hi)
+        elif f(hi) < f(mid):
+            return boundary_set(lo, hi * 2)
+        else:
+            return (lo, hi)
+
+    return boundary_set(-1, 1)
 
 
 def argmin_simple(f, epsilon=1e-3):
