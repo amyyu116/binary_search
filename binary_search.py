@@ -132,7 +132,7 @@ def argmin(f, lo, hi, epsilon=1e-3):
 
     HINT:
     The basic algorithm is:
-        1) The base case is when hi-lo < epsilon
+        1) The base case is when hi - lo < epsilon
         2) For each recursive call:
             a) select two points m1 and m2 that are between lo and hi
             b) one of the 4 points (lo,m1,m2,hi) must be the smallest;
