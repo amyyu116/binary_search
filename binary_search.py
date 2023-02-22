@@ -1,10 +1,12 @@
 #!/bin/python3
 '''
-JOKE: There are 2 hard problems in computer science: cache invalidation, naming things, and off-by-1 errors.
+JOKE: There are 2 hard problems in computer science: cache invalidation,
+naming things, and off-by-1 errors.
 
 It's really easy to have off-by-1 errors in these problems.
 Pay very close attention to your list indexes and your < vs <= operators.
 '''
+
 
 def find_smallest_positive(xs):
     '''
@@ -12,7 +14,7 @@ def find_smallest_positive(xs):
     Find the index of the smallest positive number.
     If no such index exists, return `None`.
 
-    HINT: 
+    HINT:
     This is essentially the binary search algorithm from class,
     but you're always searching for 0.
 
@@ -26,6 +28,28 @@ def find_smallest_positive(xs):
     >>> find_smallest_positive([-3, -2, -1]) is None
     True
     '''
+    if xs[-1] < 0:
+        return None
+    if len(xs) == 0:
+        return None
+    if xs[0] >= 0:
+        return 0
+    left = 0
+    right = len(xs) - 1
+
+    def go(left, right):
+        mid_index = (left + right) // 2
+        if xs[mid_index] == 0:
+            return mid_index + 1
+        if xs[mid_index] <= 0:
+            new_left = mid_index
+            new_right = right
+        if xs[mid_index] >= 0:
+            new_right = mid_index
+            new_left = left
+        return go(new_left, new_right)
+
+    return go(left, right)
 
 
 def count_repeats(xs, x):
@@ -34,7 +58,7 @@ def count_repeats(xs, x):
     and that x is a number.
     Calculate the number of times that x occurs in xs.
 
-    HINT: 
+    HINT:
     Use the following three step procedure:
         1) use binary search to find the lowest index with a value >= x
         2) use binary search to find the lowest index with a value < x
@@ -52,13 +76,59 @@ def count_repeats(xs, x):
     >>> count_repeats([3, 2, 1], 4)
     0
     '''
+    if x not in xs:
+        return 0
+
+    if len(xs) == 0:
+        return None
+
+    left = 0
+    right = len(xs) - 1
+
+    def find_lowest(left, right):
+        mid = (left + right) // 2
+        if xs[mid] == x:
+            if xs[mid + 1] != x:
+                return mid + 1
+            else:
+                new_left = mid
+                new_right = right + 1
+                return find_lowest(new_left, new_right)
+        if xs[mid] < x:
+            new_right = mid
+            new_left = left
+        if xs[mid] > x:
+            new_left = mid
+            new_right = right
+        return find_lowest(new_left, new_right)
+
+    def find_greatest(left, right):
+        mid = (left + right) // 2
+        if xs[mid] == x:
+            if xs[mid - 1] != x:
+                return mid
+            else:
+                new_right = mid
+                new_left = left + 1
+                return find_greatest(new_left, new_right)
+        if xs[mid] > x:
+            new_left = mid
+            new_right = right
+        if xs[mid] < x:
+            new_right = mid
+            new_left = left
+        return find_lowest(new_left, new_right)
+
+    return find_lowest(left, right) - find_greatest(left, right)
 
 
 def argmin(f, lo, hi, epsilon=1e-3):
     '''
-    Assumes that f is an input function that takes a float as input and returns a float with a unique global minimum,
+    Assumes that f is an input function that takes a float as input and returns
+    a float with a unique global minimum,
     and that lo and hi are both floats satisfying lo < hi.
-    Returns a number that is within epsilon of the value that minimizes f(x) over the interval [lo,hi]
+    Returns a number that is within epsilon of the value that minimizes
+    f(x) over the interval [lo,hi]
 
     HINT:
     The basic algorithm is:
@@ -66,20 +136,27 @@ def argmin(f, lo, hi, epsilon=1e-3):
         2) For each recursive call:
             a) select two points m1 and m2 that are between lo and hi
             b) one of the 4 points (lo,m1,m2,hi) must be the smallest;
-               depending on which one is the smallest, 
-               you recursively call your function on the interval [lo,m2] or [m1,hi]
+               depending on which one is the smallest,
+               you recursively call your function on the interval [lo,m2]
+               or [m1,hi]
 
     APPLICATION:
-    Essentially all data mining algorithms are just this argmin implementation in disguise.
+    Essentially all data mining algorithms are just this argmin implementation
+    in disguise.
     If you go on to take the data mining class (CS145/MATH166),
-    we will spend a lot of time talking about different f functions that can be minimized and their applications.
-    But the actual minimization code will all be a variant of this binary search.
+    we will spend a lot of time talking about different f functions that can
+    be minimized and their applications.
+    But the actual minimization code will all be a variant of this binary
+    search.
 
     WARNING:
     The doctests below are not intended to pass on your code,
-    and are only given so that you have an example of what the output should look like.
-    Your output numbers are likely to be slightly different due to minor implementation details.
-    Writing tests for code that uses floating point numbers is notoriously difficult.
+    and are only given so that you have an example of what the output should
+    look like.
+    Your output numbers are likely to be slightly different due to minor
+    implementation details.
+    Writing tests for code that uses floating point numbers is notoriously
+    difficult.
     See the pytests for correct examples.
 
     >>> argmin(lambda x: (x-5)**2, -20, 20)
@@ -87,16 +164,40 @@ def argmin(f, lo, hi, epsilon=1e-3):
     >>> argmin(lambda x: (x-5)**2, -20, 0)
     -0.00016935087808430278
     '''
+    if (hi - lo) <= epsilon:
+        if f(hi) > f(lo):
+            return lo
+        else:
+            return hi
+    else:
+        m1 = (hi + 2*lo) / 3
+        m2 = (2*hi+lo) / 3
+        if f(m1) > f(lo) and f(hi) > f(lo) and f(m2) > f(lo):
+            hi = m2
+            lo = lo
+        if f(m1) > f(m2) and f(hi) > f(m2) and f(lo) > f(m2):
+            hi = m2
+            lo = lo
+        if f(m1) < f(lo) and f(m1) < f(m2) and f(m1) < f(hi):
+            lo = m1
+            hi = hi
+        if f(hi) < f(lo) and f(hi) < f(m2) and f(hi) < f(m1):
+            lo = m1
+            hi = hi
+        return argmin(f, lo, hi)
 
 
-################################################################################
+# possible bounds: [lo, m2], [m1, hi]
+###############################################################################
 # the functions below are extra credit
-################################################################################
+###############################################################################
+
 
 def find_boundaries(f):
     '''
     Returns a tuple (lo,hi).
-    If f is a convex function, then the minimum is guaranteed to be between lo and hi.
+    If f is a convex function, then the minimum is guaranteed to be between
+    lo and hi.
     This function is useful for initializing argmin.
 
     HINT:
@@ -108,12 +209,14 @@ def find_boundaries(f):
         recurse with hi*=2
     else:
         you're done; return lo,hi
+
     '''
 
 
 def argmin_simple(f, epsilon=1e-3):
     '''
-    This function is like argmin, but it internally uses the find_boundaries function so that
+    This function is like argmin, but it internally uses the find_boundaries
+    function so that
     you do not need to specify lo and hi.
 
     NOTE:
