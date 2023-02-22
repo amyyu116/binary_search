@@ -170,8 +170,8 @@ def argmin(f, lo, hi, epsilon=1e-3):
         else:
             return hi
     else:
-        m1 = (hi + 2*lo) / 3
-        m2 = (2*hi+lo) / 3
+        m1 = (hi + 2 * lo) / 3
+        m2 = (2 * hi + lo) / 3
         if f(m1) > f(lo) and f(hi) > f(lo) and f(m2) > f(lo):
             hi = m2
             lo = lo
